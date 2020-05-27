@@ -17,4 +17,4 @@ interface ThreeLogInApi {
     ): Completable
 }
 
-class LoginData(val username: String="EMAIL", val password: String="PASSWORD", val section: String = "section")
+class LoginData(val username: String, val password: String)

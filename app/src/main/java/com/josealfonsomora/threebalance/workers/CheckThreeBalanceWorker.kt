@@ -15,7 +15,10 @@ import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
+
 
 class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) :
     RxWorker(context, workerParams), KoinComponent {
@@ -26,12 +29,9 @@ class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) 
     private val notificationManager: NotificationManager by inject()
 
     override fun createWork(): Single<Result> {
-        Log.d("CheckThreeBalanceServic", "createWork()")
 
-        val username = sharedPreferences.getString("username", "EMAIL")!!
-        val password = sharedPreferences.getString("password", "PASSWORD")!!
-
-        setPeriodicWorkerForEveryMorning()
+        val username = sharedPreferences.getString("email", "")!!
+        val password = sharedPreferences.getString("password", "")!!
 
         return loginService
             .login(username, password)
@@ -44,20 +44,19 @@ class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) 
                 )
             }
             .flatMap { (channel, customerId, subscriptionId) ->
-                Log.d("CheckThreeBalanceServic", "login success")
                 Single.zip(
                     threeService.getBalance(channel, subscriptionId, customerId),
                     threeService.getAllowance(channel, customerId),
                     BiFunction { balance: ThreeBalanceResponse, allowance: ThreeAllowanceResponse -> balance to allowance }
                 )
             }.map { (balance, allowance) ->
-                Log.d("CheckThreeBalanceServic", "sending notification")
                 notificationManager.cancelAll()
                 notificationManager.notify(
                     NotificationFactory.NOTIFICATION_ID,
-                    NotificationFactory.newSimpleNotification(
+                    NotificationFactory.newNotification(
                         title = "Three Balance",
-                        content = "Total balance ${balance.totalBalance} expiration date ${balance.buckets.firstOrNull()?.balanceExpiryDate}\n Allowance expiration date ${allowance.accumulators.firstOrNull()?.expirationDate}",
+                        content = "${balance.totalBalance} ${balance.buckets.firstOrNull()?.currency} untli ${balance.buckets.firstOrNull()?.balanceExpiryDate?.toFormattedDate()}",
+                        largeContent = "Balance:\n ${balance.buckets.firstOrNull()?.toString()}\n Allowance:\n ${allowance.accumulators.firstOrNull()?.toString()}",
                         context = applicationContext,
                         notificationChannel = NotificationFactory.CHANNEL_ID
                     )
@@ -66,8 +65,8 @@ class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) 
                 Result.success()
             }
     }
-
-    private fun setPeriodicWorkerForEveryMorning() {
-
-    }
 }
+
+fun Long.toFormattedDate() =
+    LocalDateTime.ofInstant(Instant.ofEpochMilli(this), ZoneId.systemDefault()).toString()
+

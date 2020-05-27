@@ -32,7 +32,7 @@ class ThreeAllowanceResponse(
     val accumulators: List<AllowanceAccumulator>
 )
 
-class AllowanceAccumulator(
+data class AllowanceAccumulator(
     val id: Long,
     val currency: String,
     val amount: BigDecimal,
@@ -95,7 +95,7 @@ data class ThreeBalanceResponse(
     val totalBalance: BigDecimal
 )
 
-class Bucket(
+data class Bucket(
     val balanceAmount: BigDecimal,
     val balanceExpiryDate: Long,
     val currency: String,

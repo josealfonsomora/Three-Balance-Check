@@ -46,9 +46,12 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
+    // Secured shared preferences
+    implementation 'androidx.security:security-crypto:1.0.0-rc02'
+
     // ktx
     implementation 'androidx.core:core-ktx:1.2.0'
-    implementation "androidx.activity:activity-ktx:1.1.0"
+    implementation 'androidx.activity:activity-ktx:1.1.0'
     
     // Network
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
@@ -66,7 +69,6 @@ dependencies {
     implementation "androidx.work:work-rxjava2:$work_version"
     // optional - GCMNetworkManager support
     implementation "androidx.work:work-gcm:$work_version"
-
 
     // RX
     implementation "io.reactivex.rxjava2:rxkotlin:$rx_kotlin_version"

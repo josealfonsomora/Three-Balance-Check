@@ -7,16 +7,15 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.databinding.DataBindingUtil
 import androidx.work.*
 import com.josealfonsomora.threebalance.R
 import com.josealfonsomora.threebalance.databinding.ActivityConfigBinding
 import com.josealfonsomora.threebalance.factories.NotificationFactory
-import com.josealfonsomora.threebalance.services.ThreeService
 import com.josealfonsomora.threebalance.workers.CheckThreeBalanceWorker
-import io.reactivex.disposables.CompositeDisposable
+import kotlinx.android.synthetic.main.activity_config.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 import java.time.LocalDateTime
@@ -24,17 +23,10 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
 class ConfigActivity : ComponentActivity() {
-    private val REQUEST_CODE = 0
-    private val disposables = CompositeDisposable()
-
-    private val threeService: ThreeService by inject()
     private val notificationManager: NotificationManager by inject()
 
     private lateinit var binding: ActivityConfigBinding
     private val viewModel: ConfigViewModel by viewModel()
-
-    private val minute: Long = 60_000L
-    private val second: Long = 1_000L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,79 +37,42 @@ class ConfigActivity : ComponentActivity() {
         createNotificationChannelId()
     }
 
-//    override fun onResume() {
-//        super.onResume()
-//        threeService
-//            .getUser()
-//            .flatMap { threeResponse ->
-//                Single.zip(
-//                    threeService.getBalance(
-//                        threeResponse.salesChannel,
-//                        threeResponse.customer.first().product.first().subscriptionId,
-//                        threeResponse.customer.first().id
-//                    ),
-//                    threeService.getAllowance(
-//                        threeResponse.salesChannel,
-//                        threeResponse.customer.first().id
-//                    ),
-//                    BiFunction { balance: ThreeBalanceResponse, allowance: ThreeAllowanceResponse ->
-//                        balance to allowance
-//                    }
-//                )
-//            }
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe({ (balance, allowance) ->
-//                Log.d("ConfigActivity", balance.toString())
-//                Log.d("ConfigActivity", allowance.toString())
-//                val constraints = Constraints.Builder()
-//                    .setRequiredNetworkType(NetworkType.CONNECTED)
-//                    .build()
-//
-//                val workerInstance = PeriodicWorkRequest.Builder(
-//                    CheckThreeBalanceWorker::class.java, 5, TimeUnit.MINUTES
-//                )
-//                    .setConstraints(constraints)
-//                    .build()
-//
-//                WorkManager.getInstance(this).enqueue(workerInstance)
-//            }, {
-//                Log.e("ConfigActivity", it.toString())
-//            }).disposeWith(disposables)
-//    }
+    override fun onStart() {
+        super.onStart()
+        val constraints =
+            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
 
-    override fun onResume() {
-        super.onResume()
-        Log.d("ConfigActivity", "Starting worker")
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+        checkBalanceButton.setOnClickListener {
+            checkBalanceButton.visibility = View.INVISIBLE
+            showBalanceOneTime(constraints)
+            scheduleBalanceEveryMorning(constraints)
+        }
+    }
 
+    private fun scheduleBalanceEveryMorning(constraints: Constraints) {
         val now = LocalDateTime.now()
-        val eightPM = LocalDateTime.of(
-            now.year,
-            now.month,
-            now.dayOfMonth,
-            21,
-            30,
-            0,
-            0
-        )
+        val tomorrow =
+            LocalDateTime.of(now.year, now.month, now.plusDays(1).dayOfMonth, 11, 0, 0, 0)
 
-        WorkManager.getInstance(this).enqueue(OneTimeWorkRequest.Builder(CheckThreeBalanceWorker::class.java).setConstraints(constraints).build())
+        val delay = now.until(tomorrow, ChronoUnit.SECONDS)
 
-        val seconds = now.until(eightPM, ChronoUnit.SECONDS)
-        Log.d("ConfigActivity", "seconds til 22:30 $seconds -> minutes ${seconds/60}")
-
-        val workerInstance = PeriodicWorkRequest.Builder(
-            CheckThreeBalanceWorker::class.java, 15, TimeUnit.MINUTES
-        )
-            .setConstraints(constraints)
-            .setScheduleRequestedAt(seconds, TimeUnit.SECONDS)
-            .build()
+        val workerInstance =
+            PeriodicWorkRequest.Builder(CheckThreeBalanceWorker::class.java, 24 * 60, TimeUnit.MINUTES)
+                .setConstraints(constraints)
+                .setInitialDelay(delay, TimeUnit.SECONDS)
+                .build()
 
         WorkManager.getInstance(this).enqueue(workerInstance)
+    }
 
+    private fun showBalanceOneTime(constraints: Constraints) {
+        WorkManager.getInstance(this)
+            .enqueue(
+                OneTimeWorkRequest.Builder(
+                    CheckThreeBalanceWorker::class.java
+                ).setConstraints(constraints)
+                    .build()
+            )
     }
 
     private fun createNotificationChannelId() {

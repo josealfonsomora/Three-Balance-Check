@@ -37,21 +37,20 @@ class LoginActivity : ComponentActivity() {
 
         loginViewModel.loginFormState.observe(this@LoginActivity, Observer {
             login.isEnabled = true
-//            val loginState = it ?: return@Observer
-//
-//            // disable login button unless both username / password is valid
-//            login.isEnabled = loginState.isDataValid
-//
-//            if (loginState.usernameError != null) {
-//                username.error = getString(loginState.usernameError)
-//            }
-//            if (loginState.passwordError != null) {
-//                password.error = getString(loginState.passwordError)
-//            }
+            val loginState = it ?: return@Observer
+
+            // disable login button unless both username / password is valid
+            login.isEnabled = loginState.isDataValid
+
+            if (loginState.usernameError != null) {
+                username.error = getString(loginState.usernameError)
+            }
+            if (loginState.passwordError != null) {
+                password.error = getString(loginState.passwordError)
+            }
         })
 
         loginViewModel.loginResult.observe(this@LoginActivity, Observer {
-            val loginResult = it ?: return@Observer
 
             loading.visibility = View.GONE
             ConfigActivity.launch(this)

@@ -1,5 +1,6 @@
 package com.josealfonsomora.threebalance.login
 
+import android.content.SharedPreferences
 import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.LiveData
@@ -7,8 +8,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.josealfonsomora.mvvmsample.core.extensions.disposeWith
 import com.josealfonsomora.threebalance.R
-import com.josealfonsomora.threebalance.services.LoginService
 import com.josealfonsomora.threebalance.services.LoginData
+import com.josealfonsomora.threebalance.services.LoginService
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -16,6 +17,7 @@ import io.reactivex.schedulers.Schedulers
 
 class LoginViewModel(
     private val loginService: LoginService,
+    private val sharedPreferences: SharedPreferences,
     private val ioScheduler: Scheduler = Schedulers.io()
 ) : ViewModel() {
     private val disposables = CompositeDisposable()
@@ -34,9 +36,15 @@ class LoginViewModel(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 {
-                    _loginResult.postValue(LoginData())
+                    sharedPreferences.edit().putString("email", username).apply()
+                    sharedPreferences.edit().putString("password", password).apply()
+
+                    _loginResult.postValue(LoginData(username, password))
                 }, {
-                    _loginResult.postValue(LoginData())
+                    sharedPreferences.edit().putString("email", username).apply()
+                    sharedPreferences.edit().putString("password", password).apply()
+
+                    _loginResult.postValue(LoginData(username, password))
                     Log.e("LoginViewModel", it.toString())
                 }
             ).disposeWith(disposables)
