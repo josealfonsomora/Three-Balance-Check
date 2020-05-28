@@ -14,5 +14,3 @@ interface ThreeLogInApi {
         @Query("section") section: String = "section"
     ): Single<Response<ResponseBody>>
 }
-
-class LoginData(val username: String, val password: String)
