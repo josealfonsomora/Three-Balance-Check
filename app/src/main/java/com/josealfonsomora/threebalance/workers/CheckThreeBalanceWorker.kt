@@ -37,7 +37,7 @@ class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) 
 
         return loginService
             .login(username, password)
-            .andThen(threeService.getUser())
+            .flatMap { threeService.getUser() }
             .map {
                 Log.d("CheckThreeBalanceWorker", "Logged in - user fetched" )
                 Triple(

@@ -36,7 +36,7 @@ class LoginActivity : ComponentActivity() {
         val loading = findViewById<ProgressBar>(R.id.loading)
 
         loginViewModel.loginFormState.observe(this@LoginActivity, Observer {
-            login.isEnabled = true
+            login.isEnabled = it.isDataValid
             val loginState = it ?: return@Observer
 
             // disable login button unless both username / password is valid
@@ -53,11 +53,19 @@ class LoginActivity : ComponentActivity() {
         loginViewModel.loginResult.observe(this@LoginActivity, Observer {
 
             loading.visibility = View.GONE
-            ConfigActivity.launch(this)
-            setResult(Activity.RESULT_OK)
 
-            //Complete and destroy login activity once successful
-            finish()
+            when (it) {
+                is LoginResult.Success -> {
+                    ConfigActivity.launch(this)
+                    setResult(Activity.RESULT_OK)
+
+                    //Complete and destroy login activity once successful
+                    finish()
+                }
+                is LoginResult.Error -> {
+                    showLoginFailed(R.string.error_logging_in)
+                }
+            }
         })
 
         username.afterTextChanged {

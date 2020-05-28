@@ -1,7 +1,6 @@
 package com.josealfonsomora.threebalance.login
 
 import android.content.SharedPreferences
-import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -18,7 +17,8 @@ import io.reactivex.schedulers.Schedulers
 class LoginViewModel(
     private val loginService: LoginService,
     private val sharedPreferences: SharedPreferences,
-    private val ioScheduler: Scheduler = Schedulers.io()
+    private val ioScheduler: Scheduler = Schedulers.io(),
+    private val uiScheduler: Scheduler = AndroidSchedulers.mainThread()
 ) : ViewModel() {
     private val disposables = CompositeDisposable()
 
@@ -33,21 +33,17 @@ class LoginViewModel(
         loginService
             .login(username, password)
             .subscribeOn(ioScheduler)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
+            .observeOn(uiScheduler)
+            .subscribe { response ->
+                if (response.code() == 302) {
                     sharedPreferences.edit().putString("email", username).apply()
                     sharedPreferences.edit().putString("password", password).apply()
-
-                    _loginResult.postValue(LoginData(username, password))
-                }, {
-                    sharedPreferences.edit().putString("email", username).apply()
-                    sharedPreferences.edit().putString("password", password).apply()
-
-                    _loginResult.postValue(LoginData(username, password))
-                    Log.e("LoginViewModel", it.toString())
+                    _loginResult.postValue(LoginResult.Success())
+                } else {
+                    _loginResult.postValue(LoginResult.Error())
                 }
-            ).disposeWith(disposables)
+            }
+            .disposeWith(disposables)
     }
 
     fun loginDataChanged(username: String, password: String) {
@@ -73,4 +69,9 @@ class LoginViewModel(
     private fun isPasswordValid(password: String): Boolean {
         return password.length > 5
     }
+}
+
+sealed class LoginResult(){
+    class Success()
+    class Error()
 }
