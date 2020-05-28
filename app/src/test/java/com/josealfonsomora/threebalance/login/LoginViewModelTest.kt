@@ -17,7 +17,7 @@ import retrofit2.Response
 @ExtendWith(InstantTaskExecutorRule::class)
 class LoginViewModelTest {
 
-    private val username = "username"
+    private val email = "user@email.com"
     private val password = "password"
     private val response302: Response<ResponseBody> = mock {
         on { code() }.thenReturn(302)
@@ -28,7 +28,7 @@ class LoginViewModelTest {
     }
 
     private val loginService: LoginService = mock {
-        on { login(username, password) }.thenReturn(Single.just(response302))
+        on { login(email, password) }.thenReturn(Single.just(response302))
     }
     private val editor: SharedPreferences.Editor = mock {
         on { putString(any(), any()) }.thenReturn(it)
@@ -50,7 +50,7 @@ class LoginViewModelTest {
 
         viewModel.loginResult.observeForever(observer)
 
-        viewModel.login(username, password)
+        viewModel.login(email, password)
 
         assert(viewModel.loginResult.value is LoginResult.Success)
     }
@@ -58,10 +58,10 @@ class LoginViewModelTest {
     @Test
     fun emitsAErrorLoginStateWhenErrorCode200FromTheServer() {
         val observer: Observer<Any> = mock()
-        whenever(loginService.login(username, password)).thenReturn(Single.just(response200))
+        whenever(loginService.login(email, password)).thenReturn(Single.just(response200))
         viewModel.loginResult.observeForever(observer)
 
-        viewModel.login(username, password)
+        viewModel.login(email, password)
 
         assert(viewModel.loginResult.value is LoginResult.Error)
     }

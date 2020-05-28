@@ -7,6 +7,6 @@ import retrofit2.Response
 class LoginService(
     private val api: ThreeLogInApi
 ) {
-    fun login(username: String, password: String): Single<Response<ResponseBody>> =
-        api.logIn(username, password)
+    fun login(email: String, password: String): Single<Response<ResponseBody>> =
+        api.logIn(email, password)
 }

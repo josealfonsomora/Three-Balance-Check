@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.josealfonsomora.mvvmsample.core.extensions.disposeWith
 import com.josealfonsomora.threebalance.R
-import com.josealfonsomora.threebalance.services.LoginData
 import com.josealfonsomora.threebalance.services.LoginService
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,15 +27,15 @@ class LoginViewModel(
     private val _loginResult = MutableLiveData<Any>()
     val loginResult: LiveData<Any> get() = _loginResult
 
-    fun login(username: String, password: String) {
+    fun login(email: String, password: String) {
         // can be launched in a separate asynchronous job
         loginService
-            .login(username, password)
+            .login(email, password)
             .subscribeOn(ioScheduler)
             .observeOn(uiScheduler)
             .subscribe { response ->
                 if (response.code() == 302) {
-                    sharedPreferences.edit().putString("email", username).apply()
+                    sharedPreferences.edit().putString("email", email).apply()
                     sharedPreferences.edit().putString("password", password).apply()
                     _loginResult.postValue(LoginResult.Success())
                 } else {
