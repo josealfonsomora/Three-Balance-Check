@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.databinding.DataBindingUtil
@@ -56,6 +57,7 @@ class ConfigActivity : ComponentActivity() {
 
         val delay = now.until(tomorrow, ChronoUnit.SECONDS)
 
+        Log.d("ConfigActivity", "delay of $delay seconds" )
         val workerInstance =
             PeriodicWorkRequest.Builder(CheckThreeBalanceWorker::class.java, 24 * 60, TimeUnit.MINUTES)
                 .setConstraints(constraints)

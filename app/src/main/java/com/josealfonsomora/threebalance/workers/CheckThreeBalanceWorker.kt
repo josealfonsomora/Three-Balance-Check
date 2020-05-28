@@ -33,10 +33,13 @@ class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) 
         val username = sharedPreferences.getString("email", "")!!
         val password = sharedPreferences.getString("password", "")!!
 
+        Log.d("CheckThreeBalanceWorker", "Logging in.." )
+
         return loginService
             .login(username, password)
             .andThen(threeService.getUser())
             .map {
+                Log.d("CheckThreeBalanceWorker", "Logged in - user fetched" )
                 Triple(
                     it.salesChannel,
                     it.customer.first().id,
@@ -44,18 +47,20 @@ class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) 
                 )
             }
             .flatMap { (channel, customerId, subscriptionId) ->
+                Log.d("CheckThreeBalanceWorker", "Fetching balances and allowances" )
                 Single.zip(
                     threeService.getBalance(channel, subscriptionId, customerId),
                     threeService.getAllowance(channel, customerId),
                     BiFunction { balance: ThreeBalanceResponse, allowance: ThreeAllowanceResponse -> balance to allowance }
                 )
             }.map { (balance, allowance) ->
+                Log.d("CheckThreeBalanceWorker", "Balance and allowances fetched - Creating notification" )
                 notificationManager.cancelAll()
                 notificationManager.notify(
                     NotificationFactory.NOTIFICATION_ID,
                     NotificationFactory.newNotification(
                         title = "Three Balance",
-                        content = "${balance.totalBalance} ${balance.buckets.firstOrNull()?.currency} untli ${balance.buckets.firstOrNull()?.balanceExpiryDate?.toFormattedDate()}",
+                        content = "${balance.totalBalance} ${balance.buckets.firstOrNull()?.currency} until ${balance.buckets.firstOrNull()?.balanceExpiryDate?.toFormattedDate()}",
                         largeContent = "Balance:\n ${balance.buckets.firstOrNull()?.toString()}\n Allowance:\n ${allowance.accumulators.firstOrNull()?.toString()}",
                         context = applicationContext,
                         notificationChannel = NotificationFactory.CHANNEL_ID
@@ -63,8 +68,23 @@ class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) 
                 )
 
                 Result.success()
+            }.doOnError { error ->
+                Log.d("CheckThreeBalanceWorker", "Error getting balance" )
+
+                notificationManager.cancelAll()
+                notificationManager.notify(
+                    NotificationFactory.NOTIFICATION_ID,
+                    NotificationFactory.newNotification(
+                        title = "Error",
+                        content = "There was an error getting balance",
+                        largeContent = error?.localizedMessage?:error.cause.toString(),
+                        context = applicationContext,
+                        notificationChannel = NotificationFactory.CHANNEL_ID
+                    )
+                )
             }
     }
+
 }
 
 fun Long.toFormattedDate() =
