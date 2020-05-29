@@ -34,7 +34,7 @@ class LoginViewModel(
             .subscribeOn(ioScheduler)
             .observeOn(uiScheduler)
             .subscribe { response ->
-                if (response.code() == 302) {
+                if (response.code() == 300) {
                     sharedPreferences.edit().putString("email", email).apply()
                     sharedPreferences.edit().putString("password", password).apply()
                     _loginResult.postValue(LoginResult.Success())
