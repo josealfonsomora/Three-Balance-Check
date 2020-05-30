@@ -12,5 +12,6 @@
     <string name="get_balance">Get balance</string>
     <string name="explanatory_text">Yoy will receive a notification with your balance every morning after you press the button bellow</string>
     <string name="error_logging_in">Credentials incorrect</string>
+    <string name="terms_and_conditions">Terms and Conditions</string>
 
 </resources>

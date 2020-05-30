@@ -1,21 +1,21 @@
 package com.josealfonsomora.threebalance.login
 
 import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import androidx.lifecycle.Observer
 import com.josealfonsomora.threebalance.R
 import com.josealfonsomora.threebalance.config.ConfigActivity
 import org.koin.android.viewmodel.ext.android.viewModel
+
 
 class LoginActivity : ComponentActivity() {
 
@@ -34,6 +34,7 @@ class LoginActivity : ComponentActivity() {
         val password = findViewById<EditText>(R.id.password)
         val login = findViewById<Button>(R.id.login)
         val loading = findViewById<ProgressBar>(R.id.loading)
+        val tac = findViewById<TextView>(R.id.tac)
 
         loginViewModel.loginFormState.observe(this@LoginActivity, Observer {
             login.isEnabled = it.isDataValid
@@ -68,12 +69,22 @@ class LoginActivity : ComponentActivity() {
             }
         })
 
+        tac.setOnClickListener {
+            val browserIntent =
+                Intent(
+                    Intent.ACTION_VIEW, Uri.parse(
+                        "https://threebalancetandc.web.app/"
+                    )
+                )
+            startActivity(browserIntent)
+        }
         username.afterTextChanged {
             loginViewModel.loginDataChanged(
                 username.text.toString(),
                 password.text.toString()
             )
         }
+
 
         password.apply {
             afterTextChanged {
