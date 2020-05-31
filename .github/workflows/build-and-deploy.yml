@@ -29,4 +29,8 @@ jobs:
 
                 - name: Upload Android Release to Play Store
                   uses: r0adkll/upload-google-play@v1
-
+                  with:
+                        serviceAccountJsonPlainText: ${{ secrets.THREE_SERVICE_ACCOUNT_JSON }}
+                        packageName: com.josealfonsomora.threebalance
+                        releaseFile: app/build/outputs/apk/release/app-release-unsigned.apk
+                        track: beta
