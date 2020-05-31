@@ -19,8 +19,18 @@ class LoginViewModelTest {
 
     private val email = "user@email.com"
     private val password = "password"
-    private val response302: Response<ResponseBody> = mock {
+    private val priorResponse: okhttp3.Response = mock {
         on { code() }.thenReturn(302)
+    }
+
+    private val rawResponse = mock<okhttp3.Response> {
+        on { priorResponse() }.thenReturn(priorResponse)
+        on { code() }.thenReturn(302)
+    }
+    private val response302: Response<ResponseBody> = mock {
+        on { code() }.thenReturn(200)
+        on { isSuccessful }.thenReturn(true)
+        on { raw() }.thenReturn(rawResponse)
     }
 
     private val response200: Response<ResponseBody> = mock {
@@ -36,7 +46,7 @@ class LoginViewModelTest {
     private val sharedPreferences: SharedPreferences = mock {
         on { edit() }.thenReturn(editor)
     }
-
+    
     private val viewModel = LoginViewModel(
         loginService = loginService,
         sharedPreferences = sharedPreferences,
