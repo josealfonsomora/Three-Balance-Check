@@ -11,7 +11,13 @@ jobs:
                 steps:
                 - name: Fetch master branch
                   uses: actions/checkout@v2
+          
+                - name: Grant gradle rights
+                  run: chmod +x ./gradlew
 
+                - name: Build Release APK with Gradle
+                  run: ./gradlew clean assembleRelease
+                
                 - name: Build release
                   uses: r0adkll/sign-android-release@v1
                   with:
@@ -20,3 +26,7 @@ jobs:
                         alias: ${{ secrets.THREE_ALIAS }}
                         keyStorePassword: ${{ secrets.THREE_KEY_STORE_PASSWORD }}
                         keyPassword: ${{ secrets.THREE_KEY_PASSWORD }}
+
+                - name: Upload Android Release to Play Store
+                  uses: r0adkll/upload-google-play@v1
+
