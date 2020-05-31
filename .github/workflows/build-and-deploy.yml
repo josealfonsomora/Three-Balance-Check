@@ -1,0 +1,22 @@
+name: "Build and deploy"
+
+on:
+        push:
+                branches:
+                        - master
+
+jobs:
+        build:
+                runs-on: ubuntu-latest
+                steps:
+                - name: Fetch master branch
+                  uses: actions/checkout@v2
+
+                - name: Build release
+                  uses: r0adkll/sign-android-release@v2
+                  with:
+                        releaseDirectory: app/build/outputs/apk/release
+                        signingKeyBase64: ${{ secrets.THREE_SIGNING_KEY }}
+                        alias: ${{ secrets.THREE_ALIAS }}
+                        keyStorePassword: ${{ secrets.THREE_KEY_STORE_PASSWORD }}
+                        keyPassword: ${{ secrets.THREE_KEY_PASSWORD }}
