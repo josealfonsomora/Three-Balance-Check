@@ -9,10 +9,7 @@ import androidx.work.WorkerParameters
 import com.josealfonsomora.threebalance.factories.NOTIFICATION_ID
 import com.josealfonsomora.threebalance.factories.NotificationFactory
 import com.josealfonsomora.threebalance.services.*
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.*
 import io.reactivex.Single
 import okhttp3.ResponseBody
 import org.junit.jupiter.api.AfterEach
@@ -57,7 +54,6 @@ class CheckThreeBalanceWorkerTest : KoinTest {
         on { getString("password", "") }.thenReturn(password)
 
     }
-
     private val subscriptionId = "subscriptionId"
     private val threeCustomerProduct: Product = mock {
         on { subscriptionId }.thenReturn(subscriptionId)
@@ -73,14 +69,12 @@ class CheckThreeBalanceWorkerTest : KoinTest {
         on { salesChannel }.thenReturn(salesChannel)
         on { customer }.thenReturn(listOf(threeCustomer))
     }
-
     private val totalBalance = BigDecimal(1234)
     private val threeBalanceBucket: Bucket = mock()
     private val threeBalanceResponse = ThreeBalanceResponse(
         buckets = listOf(threeBalanceBucket),
         totalBalance = totalBalance
     )
-
     private val allowanceAccumulator: AllowanceAccumulator = mock()
     private val threeAllowanceResponse: ThreeAllowanceResponse = mock {
         on { accumulators }.thenReturn(listOf(allowanceAccumulator))
@@ -99,8 +93,9 @@ class CheckThreeBalanceWorkerTest : KoinTest {
             )
         }.thenReturn(Single.just(threeAllowanceResponse))
     }
-
     private val notificationManager: NotificationManager = mock()
+    private val workerParameters: WorkerParameters = mock()
+    private val worker = CheckThreeBalanceWorker(context, workerParameters)
 
     @Test
     fun retrievesDataFromThreeToDisplayItAsNotification() {
@@ -113,9 +108,6 @@ class CheckThreeBalanceWorkerTest : KoinTest {
                 single { notificationManager }
             })
         }
-        val workerParameters: WorkerParameters = mock()
-
-        val worker = CheckThreeBalanceWorker(context, workerParameters)
 
         val observer = worker.createWork().test()
 
@@ -125,6 +117,25 @@ class CheckThreeBalanceWorkerTest : KoinTest {
             notification
         )
         observer.assertValue(ListenableWorker.Result.success())
+    }
+
+    @Test
+    fun notificationIsSentWhenThereIsAnErrorRetrievingInformation() {
+        startKoin {
+            modules(module {
+                single { notificationFactory }
+                single { sharedPreferences }
+                single { loginService }
+                single { threeService }
+                single { notificationManager }
+            })
+        }
+
+        whenever(loginService.login(email, password)).thenReturn(Single.error(Exception("error")))
+
+        worker.createWork().test()
+
+        verify(notificationFactory).newNotification(eq("Error"), any(), any(), any(), any())
     }
 
     @AfterEach

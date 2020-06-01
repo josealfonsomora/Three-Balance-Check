@@ -89,6 +89,8 @@ class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) 
                         notificationChannel = CHANNEL_ID
                     )
                 )
+
+                Result.success()
             }
     }
 
