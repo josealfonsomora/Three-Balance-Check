@@ -3,12 +3,12 @@ package com.josealfonsomora.threebalance.di
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.core.content.ContextCompat
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.google.gson.GsonBuilder
 import com.josealfonsomora.threebalance.ThreeBalanceApplication
+import com.josealfonsomora.threebalance.factories.NotificationFactory
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 
@@ -43,5 +43,7 @@ fun provideCoreModule() = module {
     }
 
     single { GsonBuilder().create() }
+
+    single { NotificationFactory() }
 
 }
