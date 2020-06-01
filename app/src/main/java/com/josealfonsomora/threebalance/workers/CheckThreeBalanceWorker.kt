@@ -83,7 +83,7 @@ class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) 
                     NOTIFICATION_ID,
                     notificationFactory.newNotification(
                         title = "Error",
-                        content = "There was an error getting balance",
+                        content = "There was an error getting balance.",
                         largeContent = error?.localizedMessage ?: error.cause.toString(),
                         context = applicationContext,
                         notificationChannel = CHANNEL_ID
