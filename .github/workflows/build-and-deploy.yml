@@ -32,5 +32,5 @@ jobs:
                   with:
                         serviceAccountJsonPlainText: ${{ secrets.THREE_SERVICE_ACCOUNT_JSON }}
                         packageName: com.josealfonsomora.threebalance
-                        releaseFile: app/build/outputs/apk/release/app-release-unsigned.apk
+                        releaseFile: app/build/outputs/apk/release/app-release-unsigned-signed.apk
                         track: beta
