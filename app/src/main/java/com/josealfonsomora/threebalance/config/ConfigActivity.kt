@@ -14,6 +14,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.work.*
 import com.josealfonsomora.threebalance.R
 import com.josealfonsomora.threebalance.databinding.ActivityConfigBinding
+import com.josealfonsomora.threebalance.factories.CHANNEL_ID
 import com.josealfonsomora.threebalance.factories.NotificationFactory
 import com.josealfonsomora.threebalance.workers.CheckThreeBalanceWorker
 import kotlinx.android.synthetic.main.activity_config.*
@@ -80,7 +81,7 @@ class ConfigActivity : ComponentActivity() {
     private fun createNotificationChannelId() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
-                NotificationFactory.CHANNEL_ID,
+                CHANNEL_ID,
                 "three notification",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
