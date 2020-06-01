@@ -16,12 +16,12 @@ jobs:
                   run: chmod +x ./gradlew
 
                 - name: Build Release APK with Gradle
-                  run: ./gradlew clean assembleRelease
+                  run: ./gradlew clean bundleRelease
                 
                 - name: Build release
                   uses: r0adkll/sign-android-release@v1
                   with:
-                        releaseDirectory: app/build/outputs/apk/release
+                        releaseDirectory: app/build/outputs/bundle/release
                         signingKeyBase64: ${{ secrets.THREE_SIGNING_KEY }}
                         alias: ${{ secrets.THREE_ALIAS }}
                         keyStorePassword: ${{ secrets.THREE_KEY_STORE_PASSWORD }}
@@ -32,5 +32,5 @@ jobs:
                   with:
                         serviceAccountJsonPlainText: ${{ secrets.THREE_SERVICE_ACCOUNT_JSON }}
                         packageName: com.josealfonsomora.threebalance
-                        releaseFile: app/build/outputs/apk/release/app-release-unsigned-signed.apk
+                        releaseFile: app/build/outputs/bundle/release/app-release.aab
                         track: beta
