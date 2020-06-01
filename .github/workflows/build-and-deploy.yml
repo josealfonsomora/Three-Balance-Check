@@ -33,4 +33,4 @@ jobs:
                         serviceAccountJsonPlainText: ${{ secrets.THREE_SERVICE_ACCOUNT_JSON }}
                         packageName: com.josealfonsomora.threebalance
                         releaseFile: app/build/outputs/bundle/release/app-release.aab
-                        track: alfa
+                        track: beta
