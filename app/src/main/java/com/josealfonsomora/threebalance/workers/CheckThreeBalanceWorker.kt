@@ -9,7 +9,6 @@ import androidx.work.WorkerParameters
 import com.josealfonsomora.threebalance.factories.CHANNEL_ID
 import com.josealfonsomora.threebalance.factories.NOTIFICATION_ID
 import com.josealfonsomora.threebalance.factories.NotificationFactory
-import com.josealfonsomora.threebalance.services.LoginService
 import com.josealfonsomora.threebalance.services.ThreeAllowanceResponse
 import com.josealfonsomora.threebalance.services.ThreeBalanceResponse
 import com.josealfonsomora.threebalance.services.ThreeService
@@ -24,7 +23,6 @@ import java.time.ZoneId
 class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) :
     RxWorker(context, workerParams), KoinComponent {
 
-    private val loginService: LoginService by inject()
     private val threeService: ThreeService by inject()
     private val sharedPreferences: SharedPreferences by inject()
     private val notificationManager: NotificationManager by inject()
@@ -37,7 +35,7 @@ class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) 
 
         Log.d("CheckThreeBalanceWorker", "Logging in..")
 
-        return loginService
+        return threeService
             .login(username, password)
             .flatMap { threeService.getUser() }
             .map {
@@ -65,8 +63,8 @@ class CheckThreeBalanceWorker(context: Context, workerParams: WorkerParameters) 
                     NOTIFICATION_ID,
                     notificationFactory.newNotification(
                         title = "Three Balance",
-                        content = "${balance.totalBalance} ${balance.buckets.firstOrNull()?.currency} until ${balance.buckets.firstOrNull()?.balanceExpiryDate?.toFormattedDate()}",
-                        largeContent = "Balance:\n ${balance.buckets.firstOrNull()
+                        content = "${balance.totalBalance} ${balance.balances.firstOrNull()?.currency} until ${balance.balances.firstOrNull()?.expiryDate?.toFormattedDate()}",
+                        largeContent = "Balance:\n ${balance.balances.firstOrNull()
                             ?.toString()}\n Allowance:\n ${allowance.accumulators.firstOrNull()
                             ?.toString()}",
                         context = applicationContext,

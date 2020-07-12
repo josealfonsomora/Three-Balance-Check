@@ -7,3 +7,6 @@
 * Retrofit + Okhttp3
 * GraphQl + Room
 * MVVM
+* Coroutines
+* [Hilt](https://codelabs.developers.google.com/codelabs/android-hilt/index.html#0)
+

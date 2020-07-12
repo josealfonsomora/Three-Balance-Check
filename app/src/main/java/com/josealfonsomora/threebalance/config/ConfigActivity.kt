@@ -8,15 +8,16 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.databinding.DataBindingUtil
 import androidx.work.*
 import com.josealfonsomora.threebalance.R
 import com.josealfonsomora.threebalance.databinding.ActivityConfigBinding
 import com.josealfonsomora.threebalance.factories.CHANNEL_ID
-import com.josealfonsomora.threebalance.factories.NotificationFactory
+import com.josealfonsomora.threebalance.repositories.ThreeBalanceRepository
 import com.josealfonsomora.threebalance.workers.CheckThreeBalanceWorker
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_config.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit
 
 class ConfigActivity : ComponentActivity() {
     private val notificationManager: NotificationManager by inject()
+    private val repository: ThreeBalanceRepository by inject()
 
     private lateinit var binding: ActivityConfigBinding
     private val viewModel: ConfigViewModel by viewModel()
@@ -45,9 +47,21 @@ class ConfigActivity : ComponentActivity() {
             Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
 
         checkBalanceButton.setOnClickListener {
-            checkBalanceButton.visibility = View.INVISIBLE
-            showBalanceOneTime(constraints)
-            scheduleBalanceEveryMorning(constraints)
+//            checkBalanceButton.visibility = View.INVISIBLE
+//            showBalanceOneTime(constraints)
+//            scheduleBalanceEveryMorning(constraints)
+
+            repository
+                .getBalance()
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        Log.d("smierda", it.toString())
+                    },
+                    {
+                        Log.d("smierda", it.toString())
+                    })
         }
     }
 

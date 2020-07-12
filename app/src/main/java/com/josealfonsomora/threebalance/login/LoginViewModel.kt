@@ -7,14 +7,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.josealfonsomora.mvvmsample.core.extensions.disposeWith
 import com.josealfonsomora.threebalance.R
-import com.josealfonsomora.threebalance.services.LoginService
+import com.josealfonsomora.threebalance.services.ThreeService
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 class LoginViewModel(
-    private val loginService: LoginService,
+    private val loginService: ThreeService,
     private val sharedPreferences: SharedPreferences,
     private val ioScheduler: Scheduler = Schedulers.io(),
     private val uiScheduler: Scheduler = AndroidSchedulers.mainThread()

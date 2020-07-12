@@ -70,7 +70,7 @@ class CheckThreeBalanceWorkerTest : KoinTest {
         on { customer }.thenReturn(listOf(threeCustomer))
     }
     private val totalBalance = BigDecimal(1234)
-    private val threeBalanceBucket: Bucket = mock()
+    private val threeBalanceBucket: BucketResponse = mock()
     private val threeBalanceResponse = ThreeBalanceResponse(
         buckets = listOf(threeBalanceBucket),
         totalBalance = totalBalance

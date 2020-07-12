@@ -1,5 +1,7 @@
 package com.josealfonsomora.threebalance.services
 
+import com.google.gson.annotations.SerializedName
+import com.josealfonsomora.entity.ThreeBalance
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -91,17 +93,19 @@ class Product(
 class FinancialAccount(val id: Long)
 
 data class ThreeBalanceResponse(
-    val buckets: List<Bucket>,
-    val totalBalance: BigDecimal
-)
+    @SerializedName("buckets")
+    override val balances: List<ThreeBalance.Bucket>,
+    override val totalBalance: BigDecimal
+): ThreeBalance
 
-data class Bucket(
-    val balanceAmount: BigDecimal,
-    val balanceExpiryDate: Long,
-    val currency: String,
-    val id: Long,
-    val mutipleBalances: Boolean,
-    val name: String,
-    val subscriptionID: Long,
-    val daysToExpire: Int
-)
+data class BucketResponse(
+    override val currency: String,
+    override val id: Long,
+    override val name: String,
+    override val daysToExpire: Int,
+    @SerializedName("balanceAmount")
+    override val amount: BigDecimal,
+    @SerializedName("balanceExpiryDate")
+    override val expiryDate: Long,
+    override val subscriptionId: String
+): ThreeBalance.Bucket

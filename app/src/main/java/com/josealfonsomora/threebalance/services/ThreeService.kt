@@ -1,8 +1,10 @@
 package com.josealfonsomora.threebalance.services
 
-import com.josealfonsomora.threebalance.services.ThreeApi
+import io.reactivex.Single
+import okhttp3.ResponseBody
+import retrofit2.Response
 
-class ThreeService(private val threeApi: ThreeApi) {
+class ThreeService(private val threeLogInApi: ThreeLogInApi, private val threeApi: ThreeApi) {
 
     fun getUser() = threeApi.getUser()
 
@@ -15,4 +17,8 @@ class ThreeService(private val threeApi: ThreeApi) {
 
     fun getAllowance(salesChannel: String, customerId: Long) =
         threeApi.getAllowance(selfService = salesChannel, customerId = customerId)
+
+    fun login(email: String, password: String): Single<Response<ResponseBody>> =
+        threeLogInApi.logIn(email, password)
+
 }

@@ -16,7 +16,6 @@ import com.josealfonsomora.threebalance.R
 import com.josealfonsomora.threebalance.config.ConfigActivity
 import org.koin.android.viewmodel.ext.android.viewModel
 
-
 class LoginActivity : ComponentActivity() {
 
     private val loginViewModel: LoginViewModel by viewModel()

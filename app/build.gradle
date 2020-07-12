@@ -17,7 +17,7 @@ android {
         versionCode 3
         versionName "1.2"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentati`onRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -68,6 +68,8 @@ android {
 }
 
 dependencies {
+    api project(':entity')
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -92,8 +94,12 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:3.14.2"
     implementation "com.squareup.okhttp3:okhttp-urlconnection:3.8.1"
 
+    // Database
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-rxjava2:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
 
-    //Workmanager
+    // Workmanager
     // Kotlin + coroutines
     implementation "androidx.work:work-runtime-ktx:$work_version"
     // optional - RxJava2 support
@@ -117,6 +123,7 @@ dependencies {
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     testImplementation "androidx.arch.core:core-testing:2.1.0"
     testImplementation "org.koin:koin-test:$koin_version"
+    testImplementation "androidx.room:room-testing:$room_version"
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

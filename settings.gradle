@@ -1,2 +1,3 @@
+include ':entity'
 rootProject.name='Three Balance'
 include ':app'
