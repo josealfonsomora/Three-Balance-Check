@@ -1,36 +1,54 @@
 name: "Build and deploy"
 
 on:
-        push:
-                branches:
-                        - master
+  push:
+    branches: [ master ]
 
 jobs:
-        build:
-                runs-on: ubuntu-latest
-                steps:
-                - name: Fetch master branch
-                  uses: actions/checkout@v2
-          
-                - name: Grant gradle rights
-                  run: chmod +x ./gradlew
+  build:
 
-                - name: Build Release APK with Gradle
-                  run: ./gradlew clean bundleRelease
-                
-                - name: Build release
-                  uses: r0adkll/sign-android-release@v1
-                  with:
-                        releaseDirectory: app/build/outputs/bundle/release
-                        signingKeyBase64: ${{ secrets.THREE_SIGNING_KEY }}
-                        alias: ${{ secrets.THREE_ALIAS }}
-                        keyStorePassword: ${{ secrets.THREE_KEY_STORE_PASSWORD }}
-                        keyPassword: ${{ secrets.THREE_KEY_PASSWORD }}
+    runs-on: ubuntu-latest
 
-                - name: Upload Android Release to Play Store
-                  uses: r0adkll/upload-google-play@v1
-                  with:
-                        serviceAccountJsonPlainText: ${{ secrets.THREE_SERVICE_ACCOUNT_JSON }}
-                        packageName: com.josealfonsomora.threebalance
-                        releaseFile: app/build/outputs/bundle/release/app-release.aab
-                        track: beta  
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Grant rights
+        run: chmod +x build.gradle
+
+      - name: Build with Gradle
+        id: build
+        run: ./gradlew build
+
+      - name: Build Release AAB
+        id: buildRelease
+        run: ./gradlew bundleRelease
+
+      - name: Sign AAB
+        id: sign
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/bundle/release
+          signingKeyBase64: ${{ secrets.THREE_SIGNING_KEY }}
+          alias: ${{ secrets.THREE_ALIAS }}
+          keyStorePassword: ${{ secrets.THREE_KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.THREE_KEY_PASSWORD }}
+
+      - name: Create service_account.json
+        id: createServiceAccount
+        run: echo '${{ secrets.THREE_SERVICE_ACCOUNT_JSON }}' > service_account.json
+
+      - name: Deploy to Play Store (BETA)
+        id: deploy
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: service_account.json
+          packageName: com.josealfonsomora.threebalance
+          releaseFile: app/build/outputs/bundle/release/app-release.aab
+          track: beta
